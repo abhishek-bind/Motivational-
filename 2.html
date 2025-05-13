@@ -1,0 +1,340 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>प्रेरक विचार</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-image: url('https://img.freepik.com/free-photo/glowing-lord-buddha-statue-black-background-generative-ai_169016-28577.jpg?w=996&t=st=1700480911~exp=1700481511~hmac=a4e489395c44c57c6a2f9b5d169a83a01e789c3492770876a400d544f055f72f'); /* Replace with your preferred Buddha image URL */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Dark overlay for better text readability */
+            z-index: -1;
+        }
+
+        .container {
+            background-color: rgba(20, 20, 20, 0.8); /* Slightly transparent container */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            min-height: 70vh; /* Ensure container has some height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view {
+            display: none; /* Hide views by default */
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            flex-grow: 1; /* Allow view to take available space */
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+        h1, h2 {
+            color: #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .menu-list li {
+            margin-bottom: 10px;
+        }
+
+        .menu-button, .nav-button, .back-button {
+            background-color: #555;
+            color: white;
+            border: 1px solid #777;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.1s;
+            box-sizing: border-box;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+        .menu-button .number {
+            margin-right: 15px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        .menu-button:hover, .nav-button:hover, .back-button:hover {
+            background-color: #666;
+        }
+        .menu-button:active, .nav-button:active, .back-button:active {
+            transform: scale(0.98);
+        }
+
+        #quote-display-area {
+            background-color: rgba(0,0,0,0.3);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 1.2em;
+            line-height: 1.6;
+            min-height: 150px; /* Ensure space for quote */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-grow: 1; /* Allow quote area to expand */
+        }
+
+        .quote-navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .nav-button {
+            width: 48%;
+            text-align: center;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            background-color: #c0392b;
+            text-align: center;
+            justify-content: center;
+        }
+        .back-button:hover {
+            background-color: #e74c3c;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+
+        <!-- Main Menu View -->
+        <div id="main-menu-view" class="view active">
+            <h1>मुख्य सूची</h1>
+            <ul id="main-menu-list" class="menu-list">
+                <!-- Items will be populated by JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Sub Menu View -->
+        <div id="sub-menu-view" class="view">
+            <h2 id="sub-menu-title">उप-सूची</h2>
+            <ul id="sub-menu-list" class="menu-list">
+                <!-- Items will be populated by JavaScript -->
+            </ul>
+            <button class="back-button" onclick="showView('main-menu-view')">पिछला</button>
+        </div>
+
+        <!-- Quote View -->
+        <div id="quote-view" class="view">
+            <h2 id="quote-view-title">विचार</h2>
+            <div id="quote-display-area">
+                <p id="quote-text">यहाँ विचार दिखेगा...</p>
+            </div>
+            <div class="quote-navigation">
+                <button id="prev-quote-button" class="nav-button" onclick="navigateQuote(-1)">◀ पिछला</button>
+                <button id="next-quote-button" class="nav-button" onclick="navigateQuote(1)">अगला ▶</button>
+            </div>
+            <button class="back-button" onclick="showView('sub-menu-view', currentMainCategoryIndex)">पिछला</button>
+        </div>
+
+    </div>
+
+    <script>
+        const quotesData = [
+            {
+                name: "प्रेरणादायक कथाएँ",
+                subcategories: [
+                    {
+                        name: "बुद्ध की सीख",
+                        quotes: [
+                            "क्रोध को पाले रखना गर्म कोयले को किसी और पर फेंकने की नीयत से पकड़े रहने के सामान है, इसमें आप ही जलते हैं।",
+                            "हजारों खोखले शब्दों से अच्छा वह एक शब्द है जो शांति लाये।",
+                            "तीन चीजें ज्यादा देर तक नहीं छुप सकतीं: सूर्य, चंद्रमा और सत्य।"
+                        ]
+                    },
+                    {
+                        name: "जीवन के पाठ",
+                        quotes: [
+                            "हर सुबह हम पुनः जन्म लेते हैं. हम आज क्या करते हैं यही सबसे अधिक मायने रखता है।",
+                            "आप केवल वही खोते हैं जिससे आप चिपक जाते हैं।",
+                            "शांति मन के अन्दर से आती है. इसके बिना इसकी तलाश मत करो।"
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "गौतम बुद्ध का जीवन",
+                subcategories: [
+                    {
+                        name: "ज्ञान की बातें",
+                        quotes: [
+                            "अपने उद्धार के लिए स्वयं कार्य करें, दूसरों पर निर्भर नहीं रहें।",
+                            "सच्चा प्रेम समझदारी से ही उत्पन्न होता है।",
+                            "अतीत पर ध्यान केन्द्रित मत करो, भविष्य का सपना भी मत देखो, वर्तमान क्षण पर ध्यान केंद्रित करो।"
+                        ]
+                    },
+                    {
+                        name: "ध्यान और शांति",
+                        quotes: [
+                            "मन सब कुछ है. तुम जैसा सोचते हो, वैसा ही बनते हो।",
+                            "ध्यान से ज्ञान आता है; ध्यान की कमी अज्ञानता लाती है। अच्छी तरह जानो कि क्या तुम्हे आगे ले जाता है और क्या तुम्हे रोके रखता है, और उस मार्ग को चुनो जो ज्ञान की ओर ले जाता है।"
+                        ]
+                    }
+                ]
+            },
+            {
+                name: "सफलता के मंत्र",
+                subcategories: [
+                    {
+                        name: "आत्मविश्वास",
+                        quotes: [
+                            "यदि आप दिशा नहीं बदलते हैं, तो संभवतः आप वहीं पहुँच जाएँगे जहाँ आप जा रहे हैं।",
+                            "सफलता अंतिम नहीं है, विफलता घातक नहीं है: यह जारी रखने का साहस है जो मायने रखता है।",
+                            "आपका समय सीमित है, इसलिए इसे किसी और की जिंदगी जी कर व्यर्थ न करें।"
+                        ]
+                    }
+                ]
+            }
+            // Add more main categories as needed
+        ];
+
+        let currentMainCategoryIndex = -1;
+        let currentSubCategoryIndex = -1;
+        let currentQuoteIndex = 0;
+
+        const mainMenuList = document.getElementById('main-menu-list');
+        const subMenuList = document.getElementById('sub-menu-list');
+        const subMenuTitle = document.getElementById('sub-menu-title');
+        const quoteViewTitle = document.getElementById('quote-view-title');
+        const quoteTextElement = document.getElementById('quote-text');
+        const prevQuoteButton = document.getElementById('prev-quote-button');
+        const nextQuoteButton = document.getElementById('next-quote-button');
+
+        function showView(viewId, param) {
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            if (viewId === 'sub-menu-view' && param !== undefined) {
+                // param is mainCategoryIndex
+                populateSubMenu(param);
+            } else if (viewId === 'quote-view' && param !== undefined) {
+                // param is subCategoryIndex
+                populateQuoteView(param);
+            } else if (viewId === 'main-menu-view') {
+                // Reset indices when going back to main menu
+                currentMainCategoryIndex = -1;
+                currentSubCategoryIndex = -1;
+            }
+        }
+
+        function populateMainMenu() {
+            mainMenuList.innerHTML = ''; // Clear existing items
+            quotesData.forEach((category, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<button class="menu-button" onclick="selectMainCategory(${index})"><span class="number">${index + 1}</span> ${category.name}</button>`;
+                mainMenuList.appendChild(listItem);
+            });
+        }
+
+        function selectMainCategory(index) {
+            currentMainCategoryIndex = index;
+            showView('sub-menu-view', index);
+        }
+
+        function populateSubMenu(mainIndex) {
+            const category = quotesData[mainIndex];
+            subMenuTitle.textContent = category.name;
+            subMenuList.innerHTML = ''; // Clear existing items
+            category.subcategories.forEach((subcategory, subIndex) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<button class="menu-button" onclick="selectSubCategory(${subIndex})"><span class="number">${subIndex + 1}</span> ${subcategory.name}</button>`;
+                subMenuList.appendChild(listItem);
+            });
+        }
+
+        function selectSubCategory(subIndex) {
+            currentSubCategoryIndex = subIndex;
+            currentQuoteIndex = 0; // Reset to first quote for new subcategory
+            showView('quote-view', subIndex);
+        }
+
+        function populateQuoteView(subIndex) {
+            const subcategory = quotesData[currentMainCategoryIndex].subcategories[subIndex];
+            quoteViewTitle.textContent = subcategory.name;
+            displayCurrentQuote();
+        }
+
+        function displayCurrentQuote() {
+            const quotes = quotesData[currentMainCategoryIndex].subcategories[currentSubCategoryIndex].quotes;
+            if (quotes && quotes.length > 0) {
+                quoteTextElement.textContent = quotes[currentQuoteIndex];
+                prevQuoteButton.disabled = currentQuoteIndex === 0;
+                nextQuoteButton.disabled = currentQuoteIndex === quotes.length - 1;
+            } else {
+                quoteTextElement.textContent = "इस श्रेणी में कोई विचार उपलब्ध नहीं है।";
+                prevQuoteButton.disabled = true;
+                nextQuoteButton.disabled = true;
+            }
+        }
+
+        function navigateQuote(direction) {
+            const quotes = quotesData[currentMainCategoryIndex].subcategories[currentSubCategoryIndex].quotes;
+            currentQuoteIndex += direction;
+            if (currentQuoteIndex < 0) {
+                currentQuoteIndex = 0;
+            }
+            if (currentQuoteIndex >= quotes.length) {
+                currentQuoteIndex = quotes.length - 1;
+            }
+            displayCurrentQuote();
+        }
+
+        // Initial population
+        window.onload = () => {
+            populateMainMenu();
+            showView('main-menu-view'); // Start with the main menu
+        };
+
+    </script>
+</body>
+</html>
